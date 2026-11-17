@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UgaChick MIS – Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ==================== LOGIN SCREEN ==================== -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="mark">UC</div>
+        <h1>UgaChick MIS</h1>
+        <p>Management Information System Prototype</p>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="username" placeholder="Enter username" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="Enter password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary">Sign In</button>
+      </form>
+
+      <div class="demo-accounts">
+        <p><strong>Demo Accounts</strong> (click to fill):</p>
+        <p style="margin-top:0.5rem">
+          <a href="#" onclick="fillLogin('admin','admin123');return false;"><code>admin / admin123</code></a> — Administrator<br>
+          <a href="#" onclick="fillLogin('manager','mgr123');return false;"><code>manager / mgr123</code></a> — Manager<br>
+          <a href="#" onclick="fillLogin('officer','off123');return false;"><code>officer / off123</code></a> — Production Officer
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN APP ==================== -->
+  <div id="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="mark">UC</div>
+        <div>
+          <div style="font-weight:600;font-size:0.95rem;">UgaChick MIS</div>
+          <div style="font-size:0.75rem;color:var(--muted);">Prototype v1.0</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-page="dashboard">📊 Dashboard</button>
+        <button class="nav-item" data-page="production">🏭 Production</button>
+        <button class="nav-item" data-page="inventory">📦 Inventory</button>
+        <button class="nav-item" data-page="orders">🛒 Orders</button>
+        <button class="nav-item" data-page="quality">✅ Quality Checks</button>
+        <button class="nav-item" data-page="reports">📈 Reports</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="user-avatar">A</div>
+          <div>
+            <div class="name" id="user-name">Admin</div>
+            <div class="role" id="user-role">Administrator</div>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-sm" style="width:100%;" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+          <div class="page-title" id="page-title">Dashboard</div>
+        </div>
+        <div style="font-size:0.85rem;color:var(--muted);" id="current-date"></div>
+      </div>
+
+      <div class="content">
+        <!-- DASHBOARD -->
+        <div class="page active" id="page-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="label">Total Production (this month)</div>
+              <div class="value" id="stat-production">0</div>
+              <div class="change up">↑ Live data</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Active Orders</div>
+              <div class="value" id="stat-orders">0</div>
+              <div class="change up">Pending & Confirmed</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Inventory Items</div>
+              <div class="value" id="stat-inventory">0</div>
+              <div class="change">Batches in stock</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">QC Pass Rate</div>
+              <div class="value" id="stat-qc">—</div>
+              <div class="change up">Quality checks</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Recent Production Batches</h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Batch ID</th>
+                    <th>Product</th>
+                    <th>Farm</th>
+                    <th>Quantity</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="dash-production-table"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Recent Orders</h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="dash-orders-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRODUCTION -->
+        <div class="page" id="page-production">
+          <div class="card">
+            <div class="card-header">
+              <h3>Record New Production Batch</h3>
+            </div>
+            <div id="prod-alert"></div>
+            <form id="production-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Product Type</label>
+                  <select id="prod-type" required>
+                    <option value="">Select product</option>
+                    <option>Broiler Chicken</option>
+                    <option>Layers</option>
+                    <option>Day-old Chicks</option>
+                    <option>Processed Chicken</option>
+                    <option>Eggs</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Farm / Location</label>
+                  <select id="prod-farm" required>
+                    <option value="">Select farm</option>
+                    <option>Namanve Farm</option>
+                    <option>Mukono Hatchery</option>
+                    <option>Jinja Broiler Unit</option>
+                    <option>Processing Plant - Kampala</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Quantity</label>
+                  <input type="number" id="prod-qty" min="1" required placeholder="e.g. 5000">
+                </div>
+                <div class="form-group">
+                  <label>Production Date</label>
+                  <input type="date" id="prod-date" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Notes (optional)</label>
+                <textarea id="prod-notes" rows="2" placeholder="Any additional notes..."></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Batch</button>
+                <button type="reset" class="btn btn-outline">Clear</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>All Production Batches</h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Batch ID</th>
+                    <th>Product</th>
+                    <th>Farm</th>
+                    <th>Qty</th>
+                    <th>Date</th>
+                    <th>Recorded By</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="production-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- INVENTORY -->
+        <div class="page" id="page-inventory">
+          <div class="card">
+            <div class="card-header">
+              <h3>Current Inventory</h3>
+              <button class="btn btn-sm btn-outline" onclick="seedInventory()">Refresh from Production</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Batch ID</th>
+                    <th>Product</th>
+                    <th>Location</th>
+                    <th>Qty On Hand</th>
+                    <th>Reserved</th>
+                    <th>Available</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ORDERS -->
+        <div class="page" id="page-orders">
+          <div class="card">
+            <div class="card-header">
+              <h3>New Customer Order</h3>
+            </div>
+            <div id="order-alert"></div>
+            <form id="order-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Customer Name</label>
+                  <input type="text" id="order-customer" required placeholder="Customer / Distributor name">
+                </div>
+                <div class="form-group">
+                  <label>Phone</label>
+                  <input type="tel" id="order-phone" placeholder="+256...">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Product</label>
+                  <select id="order-product" required>
+                    <option value="">Select product</option>
+                    <option>Broiler Chicken</option>
+                    <option>Layers</option>
+                    <option>Day-old Chicks</option>
+                    <option>Processed Chicken</option>
+                    <option>Eggs</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Quantity</label>
+                  <input type="number" id="order-qty" min="1" required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Unit Price (UGX)</label>
+                  <input type="number" id="order-price" min="0" required placeholder="e.g. 15000">
+                </div>
+                <div class="form-group">
+                  <label>Delivery Date</label>
+                  <input type="date" id="order-date" required>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Place Order</button>
+                <button type="reset" class="btn btn-outline">Clear</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>All Orders</h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Total (UGX)</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="orders-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUALITY -->
+        <div class="page" id="page-quality">
+          <div class="card">
+            <div class="card-header">
+              <h3>Log Quality Inspection</h3>
+            </div>
+            <div id="qc-alert"></div>
+            <form id="qc-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Batch ID</label>
+                  <select id="qc-batch" required>
+                    <option value="">Select batch</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Result</label>
+                  <select id="qc-result" required>
+                    <option value="">Select result</option>
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                    <option value="Conditional">Conditional Pass</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Notes / Observations</label>
+                <textarea id="qc-notes" rows="2" placeholder="Inspection notes..."></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save QC Record</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Quality Check History</h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>QC ID</th>
+                    <th>Batch ID</th>
+                    <th>Product</th>
+                    <th>Result</th>
+                    <th>Inspector</th>
+                    <th>Date</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody id="qc-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- REPORTS -->
+        <div class="page" id="page-reports">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="label">Total Batches Recorded</div>
+              <div class="value" id="rpt-batches">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Total Orders</div>
+              <div class="value" id="rpt-orders">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Total Order Value (UGX)</div>
+              <div class="value" id="rpt-value">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">QC Pass Rate</div>
+              <div class="value" id="rpt-qc">—</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Production by Product Type</h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Product Type</th>
+                    <th>Total Quantity</th>
+                    <th>No. of Batches</th>
+                  </tr>
+                </thead>
+                <tbody id="rpt-by-product"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Orders by Status</h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Count</th>
+                    <th>Total Value (UGX)</th>
+                  </tr>
+                </thead>
+                <tbody id="rpt-by-status"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/forms.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
