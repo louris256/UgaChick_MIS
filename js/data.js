@@ -1,8 +1,8 @@
 
 const USERS = {
-  admin:   { password: 'admin123', name: 'System Admin', role: 'Administrator', avatar: 'A' },
-  manager: { password: 'mgr123',   name: 'Sarah Nalwoga', role: 'Manager', avatar: 'S' },
-  officer: { password: 'off123',   name: 'James Okello', role: 'Production Officer', avatar: 'J' }
+  admin:   { password: 'admin123', name: 'JULIUS', role: 'Administrator', avatar: 'A' },
+  manager: { password: 'mgr123',   name: 'OLIVER', role: 'Manager', avatar: 'S' },
+  officer: { password: 'off123',   name: 'CHRISTINE', role: 'Production Officer', avatar: 'J' }
 };
 
 let currentUser = null;
